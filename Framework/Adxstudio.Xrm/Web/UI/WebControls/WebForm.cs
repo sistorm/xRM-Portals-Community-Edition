@@ -877,21 +877,22 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 				{
 					// Current Portal User - do nothing as entity source should already be set.
 				}
-				else if ((mode != null && entitySourceType != null) && entitySourceType.Value == (int)WebFormStepSourceType.QueryString)
+				else if ((mode != null && entitySourceType != null) && (entitySourceType.Value == (int)WebFormStepSourceType.QueryString || entitySourceType.Value == 100000004))
 				{
 					// Query string 
 					UpdateStepHistoryReferenceEntityID(entitySourceDefinition.ID);
 				}
 				else
 				{
-					if (mode != null && entitySourceType != null)
-					{
-						if ((mode.Value == (int)WebFormStepMode.Edit || mode.Value == (int)WebFormStepMode.ReadOnly)
-							&& entitySourceType.Value == (int)WebFormStepSourceType.ResultFromPreviousStep)
+                    if (mode != null && entitySourceType != null)
+                    {
+                        if ((mode.Value == (int)WebFormStepMode.Edit || mode.Value == (int)WebFormStepMode.ReadOnly)
+                        && entitySourceType.Value == (int)WebFormStepSourceType.ResultFromPreviousStep)
 						{
-							var entitySourceStep = step.GetAttributeValue<EntityReference>("adx_entitysourcestep");
-							UpdateStepHistoryReferenceEntityID(entitySourceStep == null ? GetPreviousStepReferenceEntityID() : GetStepReferenceEntityID(entitySourceStep.Id));
-						}
+                            var entitySourceStep = step.GetAttributeValue<EntityReference>("adx_entitysourcestep");
+                            UpdateStepHistoryReferenceEntityID(entitySourceStep == null ? GetPreviousStepReferenceEntityID() : GetStepReferenceEntityID(entitySourceStep.Id));
+                        }
+                        
 					}
 					else if (step.GetAttributeValue<OptionSetValue>("adx_type") != null)
 					{
@@ -2100,7 +2101,10 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 						throw new ApplicationException(string.Format("Form failed to databind. Couldn't find a record associated to the current portal user for relationship {0}.", relationship));
 					}
 					id = source.Id.ToString();
-					break;
+                    logicalName = source.LogicalName;
+                    primaryKey = MetadataHelper.GetEntityPrimaryKeyAttributeLogicalName(context, logicalName);
+
+                    break;
 				case (int)WebFormStepSourceType.ResultFromPreviousStep: // Source entity from previous step
 					var referenceEntityDefinition = GetPreviousStepReferenceEntityDefinition();
 					if (referenceEntityDefinition == null)

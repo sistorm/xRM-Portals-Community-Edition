@@ -481,21 +481,32 @@
 		var $button = $modal.find(".modal-footer button.primary");
 		var noteText = $modal.find("textarea").val();
 		var isPrivate = false;
-		
+        var filename = null;
+        try{
+            filename = $modal.find("input[type=file]")[0].files[0].name
+		}catch{}
+        
 		if (url == null || url == '') {
 			var urlError = { Message: "System Error", InnerError: { Message: window.ResourceManager['URL_Service_For_Add_Note_Request_Could_Not_Determined'] } };
 			onFail(urlError, $modal);
 			return;
 		}
 
-		if (noteText == null || !/\S+/gm.test(noteText)) {
-			var labelText = $modal.find("#note_label");
-			if (labelText) {
-			    var noteLengthError = { Message: window.ResourceManager['Required_Field_Error'].replace('{0}', labelText.text()) };
-				onFail(noteLengthError, $modal);
-			}
-			return;
-		}
+        if (noteText == null || !/\S+/gm.test(noteText)) {
+            if (filename == null || !/\S+/gm.test(filename)) {
+                
+			    var labelText = $modal.find("#note_label");
+			    if (labelText) {
+			        var noteLengthError = { Message: window.ResourceManager['Required_Field_Error'].replace('{0}', labelText.text()) };
+				    onFail(noteLengthError, $modal);
+			    }
+			    return;
+            }else{
+                noteText = filename;
+                $modal.find("textarea").val(noteText);
+            
+		    }
+        }
 
 		var $isPrivate = $modal.find("input[type='checkbox']");
 
@@ -550,6 +561,10 @@
 		var noteText = $modal.find("textarea").val();
 		var subject = $modal.data("subject") || "";
 		var isPrivate = false;
+        var filename = null;
+        try{
+            filename = $modal.find("input[type=file]")[0].files[0].name
+		}catch{}
 
 		if (url == null || url == '') {
 			var urlError = { Message: "System Error", InnerError: { Message: window.ResourceManager['URL_Service_For_Update_Note_Request_Could_Not_Determined'] } };
@@ -565,14 +580,21 @@
 			return;
 		}
 
-		if (noteText == null || !/\S+/gm.test(noteText)) {
-			var labelText = $modal.find("#note_label");
-			if (labelText) {
-			    var noteLengthError = { Message: window.ResourceManager['Required_Field_Error'].replace('{0}', labelText.text()) };
-			onFail(noteLengthError, $modal);
-		}
-		return;
-		}
+		 if (noteText == null || !/\S+/gm.test(noteText)) {
+            if (filename == null || !/\S+/gm.test(filename)) {
+                
+			    var labelText = $modal.find("#note_label");
+			    if (labelText) {
+			        var noteLengthError = { Message: window.ResourceManager['Required_Field_Error'].replace('{0}', labelText.text()) };
+				    onFail(noteLengthError, $modal);
+			    }
+			    return;
+            }else{
+                noteText = filename;
+                $modal.find("textarea").val(noteText);
+            
+		    }
+        }
 
 		var $isPrivate = $modal.find("input[type='checkbox']");
 

@@ -10,6 +10,7 @@ using System.Web.UI.HtmlControls;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Adxstudio.Xrm.Mapping;
+using Adxstudio.Xrm.Web.Mvc.Html;
 using Adxstudio.Xrm.Web.UI.HtmlControls;
 using Adxstudio.Xrm.Web.UI.WebForms;
 using Microsoft.Xrm.Client;
@@ -70,10 +71,20 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 			var tabTable = new HtmlGenericControl("div");
 
 			string tabName;
-			var tabLabel = string.Empty;
+
+            var tabLabel = string.Empty;
 			var tabCssClassName = string.Empty;
 
-			if (Node.TryGetAttributeValue(".", "name", out tabName))
+            var descriptionContainer = new HtmlGenericControl("div");
+            var add_description = false;
+            var description = string.Empty;
+            WebFormMetadata.DescriptionPosition descriptionPosition = WebFormMetadata.DescriptionPosition.AboveControl;
+
+            
+
+            
+
+            if (Node.TryGetAttributeValue(".", "name", out tabName))
 			{
 				tabTable.Attributes.Add("data-name", tabName);
 
@@ -91,20 +102,70 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 						}
 
 						tabCssClassName = tabWebFormMetadata.GetAttributeValue<string>("adx_cssclass") ?? string.Empty;
-					}
-				}
+
+
+
+                        add_description = tabWebFormMetadata.GetAttributeValue<bool>("adx_adddescription");
+
+                        description = Localization.GetLocalizedString(tabWebFormMetadata.GetAttributeValue<string>("adx_description"), LanguageCode);
+
+                        descriptionPosition = (WebFormMetadata.DescriptionPosition)(tabWebFormMetadata.GetAttributeValue<OptionSetValue>("adx_descriptionposition").Value);
+
+                        if (add_description && !string.IsNullOrWhiteSpace(description))
+                        {
+
+                            var html = Mvc.Html.EntityExtensions.GetHtmlHelper(
+                                ((Adxstudio.Xrm.Web.UI.WebControls.EntityForm)container.BindingContainer).PortalName,
+                                container.Page.Request.RequestContext,
+                                container.Page.Response
+                                );
+
+                            descriptionContainer.InnerHtml = html.Liquid(description);
+
+                            switch (descriptionPosition)
+                            {
+                                case WebFormMetadata.DescriptionPosition.AboveLabel:
+                                    descriptionContainer.Attributes["class"] =  "description";
+                                    break;
+                                case WebFormMetadata.DescriptionPosition.AboveControl:
+                                    descriptionContainer.Attributes["class"] =  "description above";
+                                    break;
+                                case WebFormMetadata.DescriptionPosition.BelowControl:
+                                    descriptionContainer.Attributes["class"] = "description below";
+                                    break;
+                            }
+                        }
+
+                       
+
+
+                    }
+                }
 			}
 
 			tabTable.Attributes.Add("class", !string.IsNullOrWhiteSpace(tabCssClassName) ? string.Join(" ", "tab clearfix", tabCssClassName) : "tab clearfix");
 
-			if (ShowLabel)
+
+            if (add_description && !string.IsNullOrWhiteSpace(description) && descriptionPosition == WebFormMetadata.DescriptionPosition.AboveLabel)
+            {
+                container.Controls.Add(descriptionContainer);
+            }
+
+
+            if (ShowLabel)
 			{
 				var caption = new HtmlGenericControl("h2") { InnerHtml = string.IsNullOrWhiteSpace(tabLabel) ? Label : tabLabel };
 				caption.Attributes.Add("class", "tab-title");
 				container.Controls.Add(caption);
 			}
 
-			container.Controls.Add(tabTable);
+            if (add_description && !string.IsNullOrWhiteSpace(description) && descriptionPosition == WebFormMetadata.DescriptionPosition.AboveControl)
+            {
+                container.Controls.Add(descriptionContainer);
+            }
+
+
+            container.Controls.Add(tabTable);
 
 			foreach (var columnElement in Node.XPathSelectElements("columns/column"))
 			{
@@ -131,6 +192,12 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 					template.InstantiateIn(wrapper);
 				}
 			}
-		}
+
+            if (add_description && !string.IsNullOrWhiteSpace(description) && descriptionPosition == WebFormMetadata.DescriptionPosition.BelowControl)
+            {
+                container.Controls.Add(descriptionContainer);
+            }
+
+        }
 	}
 }

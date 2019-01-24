@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
+using Adxstudio.Xrm.Web.Mvc.Html;
+using Adxstudio.Xrm.Web.UI.WebForms;
 using Microsoft.Xrm.Portal.Web.UI.CrmEntityFormView;
 
 namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
@@ -65,7 +67,35 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 				return;
 			}
 
-			var cellInfoContainer = new HtmlGenericControl("div");
+            var html = Mvc.Html.EntityExtensions.GetHtmlHelper(Metadata.FormView.ContextName, container.Page.Request.RequestContext, container.Page.Response);
+
+            var descriptionContainer = new HtmlGenericControl("div");
+
+            if (Metadata.AddDescription && !string.IsNullOrWhiteSpace(Metadata.Description))
+            {
+                descriptionContainer.InnerHtml = html.Liquid(Metadata.Description);
+
+                switch (Metadata.DescriptionPosition)
+                {
+                    case WebFormMetadata.DescriptionPosition.AboveLabel:
+                        descriptionContainer.Attributes["class"] = !string.IsNullOrWhiteSpace(Metadata.CssClass) ? string.Join(" ", "description", Metadata.CssClass) : "description";
+                        break;
+                    case WebFormMetadata.DescriptionPosition.AboveControl:
+                        descriptionContainer.Attributes["class"] = !string.IsNullOrWhiteSpace(Metadata.CssClass) ? string.Join(" ", "description above", Metadata.CssClass) : "description above";
+                        break;
+                    case WebFormMetadata.DescriptionPosition.BelowControl:
+                        descriptionContainer.Attributes["class"] = !string.IsNullOrWhiteSpace(Metadata.CssClass) ? string.Join(" ", "description below", Metadata.CssClass) : "description below";
+                        break;
+                }
+            }
+
+            if (Metadata.AddDescription && !string.IsNullOrWhiteSpace(Metadata.Description) && Metadata.DescriptionPosition == WebFormMetadata.DescriptionPosition.AboveLabel)
+            {
+                container.Controls.Add(descriptionContainer);
+            }
+
+
+            var cellInfoContainer = new HtmlGenericControl("div");
 
 			container.Controls.Add(cellInfoContainer);
 
@@ -78,14 +108,25 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 				cellInfoContainer.Controls.Add(new Label { AssociatedControlID = Metadata.ControlID, Text = Metadata.Label, ToolTip = Metadata.ToolTip });
 			}
 
-			var controlContainer = new HtmlGenericControl("div");
+            if (Metadata.AddDescription && !string.IsNullOrWhiteSpace(Metadata.Description) && Metadata.DescriptionPosition == WebFormMetadata.DescriptionPosition.AboveControl)
+            {
+                container.Controls.Add(descriptionContainer);
+            }
+
+            var controlContainer = new HtmlGenericControl("div");
 
 			container.Controls.Add(controlContainer);
 
 			controlContainer.Attributes["class"] = "control";
 
 			InstantiateControlIn(controlContainer);
-		}
+
+
+            if (Metadata.AddDescription && !string.IsNullOrWhiteSpace(Metadata.Description) && Metadata.DescriptionPosition == WebFormMetadata.DescriptionPosition.BelowControl)
+            {
+                container.Controls.Add(descriptionContainer);
+            }
+        }
 
 		protected abstract void InstantiateControlIn(HtmlControl container);
 	}

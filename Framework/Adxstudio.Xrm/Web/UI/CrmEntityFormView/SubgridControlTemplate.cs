@@ -75,7 +75,9 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 
 			var context = CrmConfigurationManager.CreateContext(ContextName);
 			var portal = PortalCrmConfigurationManager.CreatePortalContext(ContextName);
-			var user = portal == null ? null : portal.User;
+            
+
+            var user = portal == null ? null : portal.User;
 
 			EntityMetadata = GetEntityMetadata(context);
 
@@ -98,17 +100,19 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 			{
 				Get = () => null,
 				Set = obj =>
-					{
-						var id = obj.ToString();
-						Guid entityId;
+                    {
+                        var id = obj.ToString();
+                        Guid entityId;
 
-						if (!Guid.TryParse(id, out entityId)) return;
+                      
 
-						var subgridHtml = BuildGrid(container, context, viewGuids, viewId, entityId, user);
+                        if (!Guid.TryParse(id, out entityId)) return;
+
+                        var subgridHtml = BuildGrid(container, context, viewGuids, viewId, entityId, user);
 						var subgrid = new HtmlGenericControl("div") { ID = Metadata.ControlID, InnerHtml = subgridHtml.ToString() };
 						subgrid.Attributes.Add("class", "subgrid");
 						container.Controls.Add(subgrid);
-					}
+                    }
 			};
 
 			if (!container.Page.IsPostBack) return;
@@ -131,8 +135,8 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 			Guid viewId, Guid entityId, Entity user)
 		{
 			var portalContext = PortalCrmConfigurationManager.CreatePortalContext(Metadata.FormView.ContextName);
-			var html = Mvc.Html.EntityExtensions.GetHtmlHelper(Metadata.FormView.ContextName, container.Page.Request.RequestContext, container.Page.Response);
-			var source = new EntityReference(Metadata.TargetEntityName, entityId);
+            var html = Mvc.Html.EntityExtensions.GetHtmlHelper(Metadata.FormView.ContextName, container.Page.Request.RequestContext, container.Page.Response);
+            var source = new EntityReference(Metadata.TargetEntityName, entityId);
 			var relationship = new Relationship(Metadata.ViewRelationshipName);
 
 			var metadataManyToMany = EntityMetadata.ManyToManyRelationships.FirstOrDefault(r => r.SchemaName == Metadata.ViewRelationshipName);

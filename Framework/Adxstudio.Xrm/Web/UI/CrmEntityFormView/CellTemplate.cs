@@ -10,6 +10,7 @@ using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using Adxstudio.Xrm.Resources;
+using Adxstudio.Xrm.Web.Mvc.Html;
 using Adxstudio.Xrm.Web.UI.WebControls;
 using Adxstudio.Xrm.Web.UI.WebForms;
 using Microsoft.Xrm.Client;
@@ -121,13 +122,15 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 				return;
 			}
 
-			var descriptionContainer = new HtmlGenericControl("div");
+            var html = Mvc.Html.EntityExtensions.GetHtmlHelper(Metadata.FormView.ContextName, container.Page.Request.RequestContext, container.Page.Response);
+
+            var descriptionContainer = new HtmlGenericControl("div");
 
 			if (Metadata.AddDescription && !string.IsNullOrWhiteSpace(Metadata.Description))
 			{
-				descriptionContainer.InnerHtml = Metadata.Description;
+				descriptionContainer.InnerHtml = html.Liquid(Metadata.Description);
 
-				switch (Metadata.DescriptionPosition)
+                switch (Metadata.DescriptionPosition)
 				{
 					case WebFormMetadata.DescriptionPosition.AboveLabel:
 						descriptionContainer.Attributes["class"] = !string.IsNullOrWhiteSpace(Metadata.CssClass) ? string.Join(" ", "description", Metadata.CssClass) : "description";

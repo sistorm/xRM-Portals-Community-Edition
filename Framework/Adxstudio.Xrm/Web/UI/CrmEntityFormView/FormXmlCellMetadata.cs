@@ -145,7 +145,8 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 		public FormXmlCellMetadata(XNode cellNode, EntityMetadata entityMetadata, int languageCode, bool? toolTipEnabled, bool? recommendedFieldsRequired, string validationText, IEnumerable<Entity> webFormMetadata, bool? forceAllFieldsRequired, bool? enableValidationSummaryLinks, string validationSummaryLinkText, Dictionary<string, string> messages, int baseOrganizationLanguageCode = 0)
 			: base(cellNode, entityMetadata, languageCode)
 		{
-			_targetEntityName = entityMetadata.LogicalName;
+
+            _targetEntityName = entityMetadata.LogicalName;
 
 			_targetEntityPrimaryKeyName = entityMetadata.PrimaryIdAttribute;
 			
@@ -236,8 +237,9 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 								ADXTrace.Instance.TraceError(TraceCategory.Application, string.Format("FormXmlCellMetadata Constructor {0}", e.ToString()));
                             }
 						}
-					}
-				}
+                    }
+
+                }
 			}
 			else if (_controlID == "notescontrol")
 			{
@@ -351,8 +353,15 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 									ADXTrace.Instance.TraceError(TraceCategory.Application, string.Format("FormXmlCellMetadata Constructor {0}", e.ToString()));
                                 }
 							}
-						}
-					}
+
+                            _addDescription = subgridWebFormMetadata.GetAttributeValue<bool>("adx_adddescription");
+                            var description = subgridWebFormMetadata.GetAttributeValue<string>("adx_description");
+                            _description = Localization.GetLocalizedString(description, LanguageCode);  
+                            var description_OpSetVal = subgridWebFormMetadata.GetAttributeValue<OptionSetValue>("adx_descriptionposition");
+                            _descriptionPosition = (WebFormMetadata.DescriptionPosition)(description_OpSetVal.Value);
+
+                        }
+                    }
 				}
 			}
 			else if (_classID == QuickformClassId) // QuickForm

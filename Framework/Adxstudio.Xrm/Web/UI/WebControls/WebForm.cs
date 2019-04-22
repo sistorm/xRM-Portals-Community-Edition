@@ -46,11 +46,12 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 	using Adxstudio.Xrm.Web.UI.CrmEntityFormView;
 	using Adxstudio.Xrm.Web.UI.JsonConfiguration;
 	using Adxstudio.Xrm.Web.UI.WebForms;
+    using Microsoft.Xrm.Sdk.Messages;
 
-	/// <summary>
-	/// Web Form control retrieves the Web Form record defined for the Web Page containing this control. Web Form definition record details the entity forms and workflow/logic within the CRM to facilitate data entry forms within the portal without the need for developer intervention.
-	/// </summary>
-	[Description("Web Form control retrieves the Web Form record defined for the Web Page containing this control. Web Form definition record details the entity forms and workflow/logic within the CRM to facilitate data entry forms within the portal without the need for developer intervention.")]
+    /// <summary>
+    /// Web Form control retrieves the Web Form record defined for the Web Page containing this control. Web Form definition record details the entity forms and workflow/logic within the CRM to facilitate data entry forms within the portal without the need for developer intervention.
+    /// </summary>
+    [Description("Web Form control retrieves the Web Form record defined for the Web Page containing this control. Web Form definition record details the entity forms and workflow/logic within the CRM to facilitate data entry forms within the portal without the need for developer intervention.")]
 	[ToolboxData(@"<{0}:WebForm runat=""server""></{0}:WebForm>")]
 	[DefaultProperty("")]
 	public class WebForm : CompositeControl
@@ -2036,8 +2037,28 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 					Guid guid;
 					if (string.IsNullOrWhiteSpace(id))
 					{
-						return null;
-					}
+
+                        var refEntityDefinition = GetPreviousStepReferenceEntityDefinition();
+
+                        var metadataResponse = (RetrieveRelationshipResponse)context.Execute(new RetrieveRelationshipRequest
+                        {
+                            Name = primaryKeyQueryStringParameter
+                        });
+
+                        var OneToManyMetadata = metadataResponse.RelationshipMetadata as OneToManyRelationshipMetadata;
+
+                        if (OneToManyMetadata != null)
+                        {
+
+                                Entity entity = context.RetrieveSingle((string)refEntityDefinition.LogicalName, (string)refEntityDefinition.PrimaryKeyLogicalName, refEntityDefinition.ID, new[] { new FetchAttribute(OneToManyMetadata.ReferencingAttribute) });
+
+                                if (entity != null)
+                                {
+                                    id = ((EntityReference)entity[(string)OneToManyMetadata.ReferencingAttribute]).Id.ToString();
+                               }
+                            
+                        }
+                    }
 					if (!Guid.TryParse(id, out guid))
 					{
 						return null;
@@ -2275,7 +2296,9 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 
 			SetEntityReference(context, step, e.Values);
 
-			SetAutoNumber(context, step, e);
+            SetAssociateReference(context, e);
+
+            SetAutoNumber(context, step, e);
 
 			LogUserInfoOnInserting(context, step, e);
 
@@ -3731,7 +3754,45 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 			}
 		}
 
-		protected WebForms.WebFormEntitySourceDefinition GetUserControlReferenceEntityDefinition(OrganizationServiceContext context, Entity step)
+        protected void SetAssociateReference(OrganizationServiceContext context, CrmEntityFormViewInsertingEventArgs e)
+        {
+            var targetEntityLogicalName = HttpContext.Current.Request["refentity"];
+            var targetEntityId = HttpContext.Current.Request["refid"];
+            var relationshipName = HttpContext.Current.Request["refrel"];
+            var relationshipRole = HttpContext.Current.Request["refrelrole"];
+            Guid targetId;
+
+            if (string.IsNullOrWhiteSpace(targetEntityLogicalName) || string.IsNullOrWhiteSpace(targetEntityId) ||
+                string.IsNullOrWhiteSpace(relationshipName))
+            {
+                ADXTrace.Instance.TraceInfo(TraceCategory.Application, "Request did not contain parameters 'refentity', 'refid', 'refrel'");
+                return;
+            }
+
+            var targetMetadataRequest = new RetrieveEntityRequest
+            {
+                LogicalName = targetEntityLogicalName,
+                EntityFilters = EntityFilters.All
+            };
+
+            var targetMetadataResponse = (RetrieveEntityResponse)context.Execute(targetMetadataRequest);
+
+            var metadataOneToMany = targetMetadataResponse.EntityMetadata.OneToManyRelationships.FirstOrDefault(r => r.SchemaName == relationshipName);
+
+            if (metadataOneToMany != null)
+            {
+                if (!Guid.TryParse(targetEntityId, out targetId))
+                {
+                    ADXTrace.Instance.TraceError(TraceCategory.Application, "Request did not contain a valid guid 'refid'");
+                    return;
+                }
+
+                e.Values[metadataOneToMany.ReferencingAttribute] = new EntityReference(targetEntityLogicalName, targetId);
+            }
+
+        }
+
+        protected WebForms.WebFormEntitySourceDefinition GetUserControlReferenceEntityDefinition(OrganizationServiceContext context, Entity step)
 		{
 			step.AssertEntityName("adx_webformstep");
 

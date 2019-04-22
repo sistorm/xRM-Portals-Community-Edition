@@ -164,8 +164,12 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 				new Action<IEnumerable<Control>>(controls => { controls.ForEach(x => divContainer.Controls.Add(x)); });
 
 			container.Controls.Add(divContainer);
+            var context = Microsoft.Xrm.Client.Configuration.CrmConfigurationManager.CreateContext();
+            bool hideLine2 = default(bool), hideLine3 = default(bool);
+            Boolean.TryParse(context.GetSiteSettingValueByName(PortalContext.Current.Website, "AddressCompositeControlTemplate/HideLine2"), out hideLine2);
+            Boolean.TryParse(context.GetSiteSettingValueByName(PortalContext.Current.Website, "AddressCompositeControlTemplate/HideLine3"), out hideLine3);
 
-			switch (CultureInfo.CurrentUICulture.LCID)
+            switch (CultureInfo.CurrentUICulture.LCID)
 			{
 				case LocaleIds.Japanese:
 					addressTextBox.Attributes.Add(
@@ -196,13 +200,16 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 				default:
 					addressTextBox.Attributes.Add(
 						"data-content-template",
-						string.Format("{{{0}_line1}} {{{0}_line2}} {{{0}_line3}}{{BREAK}}{{{0}_city}} {{{0}_stateorprovince}} {{{0}_postalcode}}{{BREAK}}{{{0}_country}}", this.ControlID));
+                        //string.Format("{{{0}_line1}} {{{0}_line2}} {{{0}_line3}} {{BREAK}}{{{0}_city}} {{{0}_stateorprovince}} {{{0}_postalcode}}{{BREAK}}{{{0}_country}}", this.ControlID)); //AQPM - remove Adresse line2 and 3
+                        string.Format("{{{0}_line1}} " + (!hideLine2 ? "{{{0}_line2}} " : "") +(!hideLine3 ? "{{{0}_line3}} " : "") + "{{BREAK}}{{{0}_city}} {{{0}_stateorprovince}} {{{0}_postalcode}}{{BREAK}}{{{0}_country}}", this.ControlID));
 					this.addressControlValue = new StringBuilder(addressTextBox.Attributes["data-content-template"]);
 					this.MakeAddressLine1(addRangeControls);
-					this.MakeAddressLine2(addRangeControls);
-					this.MakeAddressLine3(addRangeControls);
+                    if(!hideLine2)
+                        this.MakeAddressLine2(addRangeControls); //AQPM - remove Adresse line2 and 3
+                    if (!hideLine3)
+                        this.MakeAddressLine3(addRangeControls); //AQPM - remove Adresse line2 and 3
 
-					this.MakeCity(addRangeControls);
+                    this.MakeCity(addRangeControls);
 
 					this.MakeState(addRangeControls);
 					this.MakePostalCode(addRangeControls);
@@ -300,6 +307,7 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 		/// <param name="addRangeControls">Add Corols Delegate</param>
 		private void MakeAddressLine2(Action<IEnumerable<Control>> addRangeControls)
 		{
+
 			var line2 = this.MakeEditControls("_line2", "Address_Line_2_DefaultText");
 			addRangeControls(line2);
 		}

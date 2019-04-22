@@ -1014,91 +1014,137 @@ namespace Adxstudio.Xrm.Web.UI.WebControls
 			var recordNotFoundMessage = Localization.GetLocalizedString(entityform.GetAttributeValue<string>("adx_recordnotfoundmessage"), LanguageCode);
 			RecordNotFoundMessage = !string.IsNullOrWhiteSpace(recordNotFoundMessage) ? recordNotFoundMessage : DefaultRecordNotFoundMessage;
 
-			switch (entitySourceType.Value)
-			{
-				case 756150001: // Query String
-					var queryStringParameter = entityform.GetAttributeValue<string>("adx_recordidquerystringparametername");
-					id = HttpContext.Current.Request[queryStringParameter];
-					Guid guid;
-					if (string.IsNullOrWhiteSpace(id))
-					{
-						return null;
-					}
-					if (!Guid.TryParse(id, out guid))
-					{
-						return null;
-					}
-					break;
-				case 756150002: // Current Portal User
-					if (portalContext.User == null)
-					{
-						EntityFormFunctions.DisplayMessage(this, RecordNotFoundMessage, "error alert alert-danger", false);
-						return null;
-					}
-					id = portalContext.User.Id.ToString();
-					switch (portalContext.User.LogicalName)
-					{
-						case "contact":
-							primaryKey = "contactid";
-							break;
-						case "systemuser":
-							primaryKey = "systemuserid";
-							break;
-						default:
-							throw new ApplicationException(string.Format("The user entity type {0} isn't supported.", portalContext.User.LogicalName));
-					}
-					break;
-				case 756150003: // Record Associated to Current Portal User
-					var relationship = entityform.GetAttributeValue<string>("adx_recordsourcerelationshipname");
-					if (string.IsNullOrWhiteSpace(relationship))
-					{
-						throw new ApplicationException("Required Relationship Name has not been specified for the Record Source Type 'Record Associated to Current Portal User'.");
-					}
-					if (portalContext.User == null)
-					{
-						throw new ApplicationException("Couldn't load user record. Portal context User is null.");
-					}
-					string userPrimaryKey;
-					switch (portalContext.User.LogicalName)
-					{
-						case "contact":
-							userPrimaryKey = "contactid";
-							break;
-						case "systemuser":
-							userPrimaryKey = "systemuserid";
-							break;
-						default:
-							throw new ApplicationException(string.Format("The user entity type {0} isn't supported.", portalContext.User.LogicalName));
-					}
-					var user = context.RetrieveSingle(
-						portalContext.User.LogicalName,
-						userPrimaryKey,
-						portalContext.User.Id,
-						FetchAttribute.All);
+            switch (entitySourceType.Value)
+            {
+                case 756150001: // Query String
 
-					if (user == null)
-					{
-						throw new ApplicationException(string.Format("Couldn't load user record. Portal context User could not be found with id equal to {0}.", portalContext.User.Id));
-					}
-					var source = context.RetrieveRelatedEntity(user, relationship);
-					if (source == null)
-					{
-						var allowCreate = entityform.GetAttributeValue<bool?>("adx_recordsourceallowcreateonnull").GetValueOrDefault();
-						if (allowCreate)
-						{
-							AssociateToCurrentPortalUserOnItemInserted = true;
-							Mode = FormViewMode.Insert;
-							return new FormEntitySourceDefinition(logicalName, primaryKey, Guid.Empty);
-						}
-					}
-					else
-					{
-						id = source.Id.ToString();
-					}
-					break;
-				default:
-					throw new ApplicationException("adx_entityform.adx_entitysourcetype is not valid."); 
-			}
+
+                    var queryStringParameter = entityform.GetAttributeValue<string>("adx_recordidquerystringparametername");
+                    id = HttpContext.Current.Request[queryStringParameter];
+
+
+                    string create_related = HttpContext.Current.Request["create_related"];
+ 
+
+                    if (!string.IsNullOrWhiteSpace(create_related))
+                    {
+
+                        string refentity = HttpContext.Current.Request["refentity"];
+                        string refrel = HttpContext.Current.Request["refrel"];
+                        string refid = HttpContext.Current.Request["refid"];
+
+                        string refprimaryattribute = MetadataHelper.GetEntityPrimaryKeyAttributeLogicalName(context, refentity);
+
+                        var metadataResponse = (RetrieveRelationshipResponse)context.Execute(new RetrieveRelationshipRequest
+                        {
+                            Name = refrel
+                        });
+
+                        var OneToManyMetadata = metadataResponse.RelationshipMetadata as OneToManyRelationshipMetadata;
+
+                        if (OneToManyMetadata != null)
+                        {
+                            Guid refGuid;
+                            if (Guid.TryParse(refid, out refGuid))
+                            {
+
+                                Entity entity = context.RetrieveSingle((string)refentity, (string)refprimaryattribute, refGuid, new[] { new FetchAttribute(OneToManyMetadata.ReferencingAttribute) });
+
+                                if (entity != null)
+                                {
+                                    id = ((EntityReference)entity[(string)OneToManyMetadata.ReferencingAttribute]).Id.ToString();
+                                }
+                            }
+                        }
+
+
+                    }
+
+
+                    Guid guid;
+                    if (string.IsNullOrWhiteSpace(id))
+                    {
+                        return null;
+                    }
+
+                    if (!Guid.TryParse(id, out guid))
+                    {
+                        return null;
+                    }
+
+
+
+                    break;
+                case 756150002: // Current Portal User
+                    if (portalContext.User == null)
+                    {
+                        EntityFormFunctions.DisplayMessage(this, RecordNotFoundMessage, "error alert alert-danger", false);
+                        return null;
+                    }
+                    id = portalContext.User.Id.ToString();
+                    switch (portalContext.User.LogicalName)
+                    {
+                        case "contact":
+                            primaryKey = "contactid";
+                            break;
+                        case "systemuser":
+                            primaryKey = "systemuserid";
+                            break;
+                        default:
+                            throw new ApplicationException(string.Format("The user entity type {0} isn't supported.", portalContext.User.LogicalName));
+                    }
+                    break;
+                case 756150003: // Record Associated to Current Portal User
+                    var relationship = entityform.GetAttributeValue<string>("adx_recordsourcerelationshipname");
+                    if (string.IsNullOrWhiteSpace(relationship))
+                    {
+                        throw new ApplicationException("Required Relationship Name has not been specified for the Record Source Type 'Record Associated to Current Portal User'.");
+                    }
+                    if (portalContext.User == null)
+                    {
+                        throw new ApplicationException("Couldn't load user record. Portal context User is null.");
+                    }
+                    string userPrimaryKey;
+                    switch (portalContext.User.LogicalName)
+                    {
+                        case "contact":
+                            userPrimaryKey = "contactid";
+                            break;
+                        case "systemuser":
+                            userPrimaryKey = "systemuserid";
+                            break;
+                        default:
+                            throw new ApplicationException(string.Format("The user entity type {0} isn't supported.", portalContext.User.LogicalName));
+                    }
+                    var user = context.RetrieveSingle(
+                        portalContext.User.LogicalName,
+                        userPrimaryKey,
+                        portalContext.User.Id,
+                        FetchAttribute.All);
+
+                    if (user == null)
+                    {
+                        throw new ApplicationException(string.Format("Couldn't load user record. Portal context User could not be found with id equal to {0}.", portalContext.User.Id));
+                    }
+                    var source = context.RetrieveRelatedEntity(user, relationship);
+                    if (source == null)
+                    {
+                        var allowCreate = entityform.GetAttributeValue<bool?>("adx_recordsourceallowcreateonnull").GetValueOrDefault();
+                        if (allowCreate)
+                        {
+                            AssociateToCurrentPortalUserOnItemInserted = true;
+                            Mode = FormViewMode.Insert;
+                            return new FormEntitySourceDefinition(logicalName, primaryKey, Guid.Empty);
+                        }
+                    }
+                    else
+                    {
+                        id = source.Id.ToString();
+                    }
+                    break;
+                default:
+                    throw new ApplicationException("adx_entityform.adx_entitysourcetype is not valid.");
+            }
 
 			return new FormEntitySourceDefinition(logicalName, primaryKey, id);
 		}

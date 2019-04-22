@@ -116,6 +116,7 @@
 			uri.addSearch('refentity', refEntityName);
 			uri.addSearch('refid', refEntityId);
 			uri.addSearch('refrel', refRelationship);
+			uri.addSearch("create_related",true);
 		}
 
 		return uri.toString();

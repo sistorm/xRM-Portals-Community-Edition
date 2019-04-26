@@ -3055,6 +3055,7 @@
     <Content Include="js\jquery-migrate-1.4.1.min.js" />
     <Content Include="js\jquery.form.min.js" />
     <Content Include="js\moment-with-locales_zh-hk.js" />
+    <Content Include="js\PhoneFormat.js" />
     <Content Include="js\prettyPhoto\license.txt" />
     <Content Include="js\rating.js" />
     <Content Include="js\select2\license.txt" />

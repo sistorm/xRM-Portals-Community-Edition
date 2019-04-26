@@ -72,6 +72,7 @@ namespace Site
 			preformBundle.Include("~/js/moment-with-locales.min.js", new JsMinifySingleItem());
 			preformBundle.Include("~/js/moment-with-locales_zh-hk.js", new JsMinifySingleItem());
 			preformBundle.Include("~/js/DateFormat.js", new JsMinifySingleItem());
+			preformBundle.Include("~/js/PhoneFormat.js", new JsMinifySingleItem());
 			preformBundle.Include("~/js/URI.min.js", new JsMinifySingleItem());
 			preformBundle.Include("~/js/bootstrap-datetimepicker.min.js", new JsMinifySingleItem());
 			preformBundle.Include("~/js/ckeditor-basepath.js", new JsMinifySingleItem());

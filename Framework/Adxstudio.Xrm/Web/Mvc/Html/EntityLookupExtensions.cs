@@ -212,7 +212,7 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 			string gridEmptyMessage = null, string gridToggleFilterText = null, string defaultErrorMessage = null, string titleCssClass = null,
 			string primaryButtonCssClass = null, string closeButtonCssClass = null, string portalName = null,
 			int languageCode = 0, IDictionary<string, string> htmlAttributes = null, BootstrapExtensions.BootstrapModalSize size = BootstrapExtensions.BootstrapModalSize.Large,
-			Guid? lookupReferenceEntityFormId = null, bool hasCreatePrivilege = false, string additionServiceUrl = null)
+			Guid? lookupReferenceEntityFormId = null, bool hasCreatePrivilege = false, bool hasDeletePrivilege = false, string additionServiceUrl = null)
 		{
             RefreshResourceStrings();
 
@@ -250,7 +250,9 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 			}
 
 			var newValueButton = default(TagBuilder);
-			var lookupCreateNewModal = default(IHtmlString);
+            var removeValueButton = default(TagBuilder);
+
+            var lookupCreateNewModal = default(IHtmlString);
 
 			// User privilege check for Create New button
 			if (hasCreatePrivilege)
@@ -265,17 +267,20 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 				dismissButtonSrText.GetValueOrDefault(_defaultModalLookupDismissButtonSrText), titleCssClass,
 				null, null, portalName);
 			}
+            if (hasDeletePrivilege)
+            {
+                removeValueButton = new TagBuilder("button");
+                removeValueButton.AddCssClass("btn btn-default pull-right remove-value");
+                removeValueButton.MergeAttribute("type", "button");
+                removeValueButton.MergeAttribute("title", removeValueButtonText.GetValueOrDefault(_defaultModalLookupRemoveValueButtonText));
+                removeValueButton.InnerHtml = removeValueButtonText.GetValueOrDefault(_defaultModalLookupRemoveValueButtonText);
+            }
 
-			var removeValueButton = new TagBuilder("button");
-			removeValueButton.AddCssClass("btn btn-default pull-right remove-value");
-			removeValueButton.MergeAttribute("type", "button");
-			removeValueButton.MergeAttribute("title", removeValueButtonText.GetValueOrDefault(_defaultModalLookupRemoveValueButtonText));
-			removeValueButton.InnerHtml = removeValueButtonText.GetValueOrDefault(_defaultModalLookupRemoveValueButtonText);
-			Dictionary<string, string> footerButtonCollection = new Dictionary<string, string>();
-			footerButtonCollection["New"] = newValueButton == null ? string.Empty : newValueButton.ToString();
-			footerButtonCollection["RemoveButton"] = removeValueButton.ToString();
+            Dictionary<string, string> footerButtonCollection = new Dictionary<string, string>();
+            footerButtonCollection["New"] = newValueButton == null ? string.Empty : newValueButton.ToString();
+            footerButtonCollection["RemoveButton"] = removeValueButton  == null ? string.Empty : removeValueButton.ToString();
 
-			var lookupModalBody = messageError.ToString();
+            var lookupModalBody = messageError.ToString();
 
 			var entityGrid = EntityGridExtensions.LookupEntityGrid(html, viewConfigurations, gridServiceUrl, user,
 				applyRelatedRecordFilter, allowFilterOff, filterRelationshipName, filterEntityName, filterAttributeName, gridToggleFilterText, cssClass,

@@ -32,7 +32,7 @@ $(document).ready(function () {
 
     $(".telephone").on( "blur", function(event)
     {
-        var A = event;
+        var A = event.target;
         A.value=formatPhoneStr(A.value);
     })
 });

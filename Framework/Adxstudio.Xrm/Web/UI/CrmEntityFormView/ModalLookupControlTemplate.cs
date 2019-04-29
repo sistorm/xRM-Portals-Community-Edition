@@ -310,8 +310,8 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 				filterFieldName, null, null, modalTitle, modalPrimaryButtonText, modalCancelButtonText, modalDismissButtonSrText,
 				modalRemoveValueButtonText, modalNewValueButtonText, null, null, modalGridLoadingMessage, modalGridErrorMessage, modalGridAccessDeniedMessage,
 				modalGridEmptyMessage, modalGridToggleFilterText, modalDefaultErrorMessage, null, null, null, Metadata.FormView.ContextName,
-				Metadata.LanguageCode, null, modalSize, Metadata.LookupReferenceEntityFormId, EvaluateCreatePrivilege(portal.ServiceContext),
-				ControlID == "entitlementid" ? BuildControllerActionUrl("GetDefaultEntitlements", "Entitlements", new { area = "CaseManagement", __portalScopeId__ = portal == null ? Guid.Empty : portal.Website.Id }) : null);
+				Metadata.LanguageCode, null, modalSize, Metadata.LookupReferenceEntityFormId, EvaluateCreatePrivilege(portal.ServiceContext), EvaluateDeletePrivilege(portal.ServiceContext),
+                ControlID == "entitlementid" ? BuildControllerActionUrl("GetDefaultEntitlements", "Entitlements", new { area = "CaseManagement", __portalScopeId__ = portal == null ? Guid.Empty : portal.Website.Id }) : null);
 		}
 
 		/// <summary>
@@ -364,7 +364,39 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 			else { return hasCreatePrivilege; }
 		}
 
-		private static Tuple<string, Guid?, string, string> GetFormEntityReferenceInfo(HttpRequest request)
+        protected bool EvaluateDeletePrivilege(OrganizationServiceContext serviceContext)
+        {
+            bool hasDeletePrivilege = false;
+            if (Metadata.LookupReferenceEntityFormId != null)
+            {
+                var entityForm = serviceContext.RetrieveSingle(
+                    "adx_entityform",
+                    new[] { "adx_entityname", "adx_mode" },
+                    new[] {
+                        new Condition("adx_entityformid", ConditionOperator.Equal, Metadata.LookupReferenceEntityFormId),
+                        new Condition("statuscode", ConditionOperator.NotNull),
+                        new Condition("statuscode", ConditionOperator.Equal, (int)Enums.EntityFormStatusCode.Active)
+                    });
+
+                if (entityForm != null)
+                {
+                    var entityLogicalName = entityForm.GetAttributeValue<string>("adx_entityname");
+                    var mode = entityForm.GetAttributeValue<OptionSetValue>("adx_mode");
+
+                    if (Metadata.LookupTargets.Contains(entityLogicalName))
+                    {
+                        var crmEntityPermissionProvider = new CrmEntityPermissionProvider();
+                        hasDeletePrivilege = crmEntityPermissionProvider.TryAssert(serviceContext, CrmEntityPermissionRight.Delete, entityLogicalName);
+                        return hasDeletePrivilege;
+                    }
+                    else { return hasDeletePrivilege; }
+                }
+                else { return hasDeletePrivilege; }
+            }
+            else { return hasDeletePrivilege; }
+        }
+
+        private static Tuple<string, Guid?, string, string> GetFormEntityReferenceInfo(HttpRequest request)
 		{
 			var entityLogicalName = request["refentity"];
 

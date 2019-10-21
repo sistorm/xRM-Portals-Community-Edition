@@ -14,6 +14,16 @@ This version is locked to the features as of the 8.3 version of code that Micros
 
 Using Microsoft's online version should be the primary goal of existing and new users, and using this version is primarily intended for those with special circumstances where they need to stay on premise for a longer time period while preparing to move online. We understand that there will be varying reasons to use this version, but Microsoft's offering is the recommended long term solution that we recommend.
 
+## Disclaimers
+
+This project is licensed under the [MIT license](https://opensource.org/licenses/MIT), which provides access to the source code free of charge and without warranty of any kind.
+
+Adoxio has not performed a detailed audit or testing of the source code after its release by Microsoft.
+
+This project only contains the source code for the portal web application and its dependent class libraries. The associated Dynamics 365 solutions were not included by Microsoft as part of the one-time open source release - as such we are unable to fix issues or make changes to behavior of components contained within the solutions, including any and all components such as schema, plugins, and web resources.
+
+Some users have observed poor application performance and scalability with this codebase compared to their prior experience with Adxstudio Portals v7. Before using this code in a production setting it would be advisable to perform adequate testing to ensure it meets your performance needs.
+
 ## Building
 
 To build the project, ensure that you have [Git](https://git-scm.com/downloads) installed to obtain the source code, and [Visual Studio 2017](https://docs.microsoft.com/en-us/visualstudio/welcome-to-visual-studio) installed to compile the source code.
@@ -55,6 +65,8 @@ The following system requirements are additional to those listed in `Self-hosted
 
 - File system permissions need to be set for general functionality and search indexing to work. Refer to the [File System Permissions](https://github.com/Adoxio/xRM-Portals-Community-Edition/wiki/File-System-Permissions) wiki page for full instructions.
 
+- A machine key should be added to the web.config file to ensure cryptographic operations always use the same settings rather than using auto-generated encryption keys (e.g. when hosted a web farm or after application restarts). This can be accomplished using IIS Manager as described in the MSDN blog post [Easiest way to generate MachineKey](https://blogs.msdn.microsoft.com/amb/2012/07/31/easiest-way-to-generate-machinekey/). Adxstudio Portals 7.x used the validation method `SHA1` and the encryption method `AES`.
+
 ## Support
 
 There are two primary methods of obtaining support for this project:
@@ -72,3 +84,7 @@ This project accepts community contributions through GitHub, following the [inbo
 > Whenever you make a contribution to a repository containing notice of a license, you license your contribution under the same terms, and you agree that you have the right to license your contribution under those terms.
 
 Please submit one pull request per issue so that we can easily identify and review the changes.
+
+### Acceptable Bug fixes
+
+Bug fixes will only be accepted for bugs that are **not** reproducable in the online portals version. In other words, if a bug exists in this project and in online portals, it must first be fixed in the online version before a fix will be included in this project. Pull requests for bug fixes can be made, but will be left open until the bug is confirmed to be fixed in online portals. This position is necessary because a bug fix that introduces a behavioral difference with online portals would effectively become a breaking change and compromise the migration path for users of this project to the online version, because users would become depend on the fixed behavior in this project that would then stop working after migrating.

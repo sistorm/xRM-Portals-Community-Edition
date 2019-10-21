@@ -264,51 +264,56 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 
 			var messageEmpty = new TagBuilder("div");
 			messageEmpty.AddCssClass("notes-empty message");
-			if (!string.IsNullOrWhiteSpace(emptyMessage))
+
+            var message = new TagBuilder("div");
+            message.AddCssClass("alert alert-block alert-warning");
+
+            if (!string.IsNullOrWhiteSpace(emptyMessage))
 			{
-				messageEmpty.InnerHtml = emptyMessage;
-			}
+                message.InnerHtml = html.Liquid(emptyMessage);
+               
+            }
 			else
 			{
-				var message = new TagBuilder("div");
-				message.AddCssClass("alert alert-block alert-warning");
 				message.InnerHtml = isTimeline ? DefaultActivitiesListEmptyMessage : DefaultNotesListEmptyMessage;
-				messageEmpty.InnerHtml = message.ToString();
 			}
+            messageEmpty.InnerHtml = message.ToString();
 
-			container.InnerHtml += messageEmpty.ToString();
+            container.InnerHtml += messageEmpty.ToString();
 
 			var messageAccessDenied = new TagBuilder("div");
 			messageAccessDenied.AddCssClass("notes-access-denied message");
-			if (!string.IsNullOrWhiteSpace(accessDeniedMessage))
+             message = new TagBuilder("div");
+            message.AddCssClass("alert alert-block alert-danger");
+            if (!string.IsNullOrWhiteSpace(accessDeniedMessage))
 			{
-				messageAccessDenied.InnerHtml = accessDeniedMessage;
+                message.InnerHtml = html.Liquid(accessDeniedMessage);
 			}
 			else
 			{
-				var message = new TagBuilder("div");
-				message.AddCssClass("alert alert-block alert-danger");
 				message.InnerHtml = DefaultNotesListAccessDeniedMessage;
-				messageAccessDenied.InnerHtml = message.ToString();
 			}
+            messageAccessDenied.InnerHtml = message.ToString();
 
-			container.InnerHtml += messageAccessDenied.ToString();
+            container.InnerHtml += messageAccessDenied.ToString();
 
 			var messageError = new TagBuilder("div");
 			messageError.AddCssClass("notes-error message");
-			if (!string.IsNullOrWhiteSpace(errorMessage))
+
+            message = new TagBuilder("div");
+            message.AddCssClass("alert alert-block alert-danger");
+            if (!string.IsNullOrWhiteSpace(errorMessage))
 			{
-				messageError.InnerHtml = errorMessage;
+                message.InnerHtml = html.Liquid(errorMessage);
 			}
 			else
 			{
-				var message = new TagBuilder("div");
-				message.AddCssClass("alert alert-block alert-danger");
 				message.InnerHtml = DefaultNotesListErrorMessage;
-				messageError.InnerHtml = message.ToString();
 			}
 
-			container.InnerHtml += messageError.ToString();
+            messageError.InnerHtml = message.ToString();
+
+            container.InnerHtml += messageError.ToString();
 
 			var messageLoading = new TagBuilder("div");
 			messageLoading.AddCssClass("notes-loading message text-center");
@@ -358,7 +363,7 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 					var button = new TagBuilder("a");
 					button.AddCssClass("btn btn-default");
 					button.AddCssClass("addnote");
-					button.InnerHtml = addNoteButtonLabel.GetValueOrDefault(DefaultAddNoteButtonLabel);
+					button.InnerHtml = html.Liquid(addNoteButtonLabel.GetValueOrDefault(DefaultAddNoteButtonLabel));
 					buttonContainer.InnerHtml = button.ToString();
 					actionRow.InnerHtml = buttonContainer.ToString();
 				}
@@ -542,21 +547,21 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 			if (isTimeline)
 			{
 				return html.BoostrapModal(BootstrapExtensions.BootstrapModalSize.Default,
-					title.GetValueOrDefault(DefaultAddCommentModalTitle), body.ToString(),
+					html.Liquid(title.GetValueOrDefault(DefaultAddCommentModalTitle)), body.ToString(),
 					string.Join(" ", new[] { "modal-addnote", cssClass }).TrimEnd(' '), null, false,
-					dismissButtonSrText.GetValueOrDefault(DefaultModalDismissButtonSrText), false, false, false,
-					primaryButtonText.GetValueOrDefault(DefaultAddCommentModalPrimaryButtonText),
-					cancelButtonText.GetValueOrDefault(DefaultAddCommentModalCancelButtonText), titleCssClass, primaryButtonCssClass,
+                    html.Liquid(dismissButtonSrText.GetValueOrDefault(DefaultModalDismissButtonSrText)), false, false, false,
+                    html.Liquid(primaryButtonText.GetValueOrDefault(DefaultAddCommentModalPrimaryButtonText)),
+                    html.Liquid(cancelButtonText.GetValueOrDefault(DefaultAddCommentModalCancelButtonText)), titleCssClass, primaryButtonCssClass,
 					closeButtonCssClass, htmlAttributes);
 			}
 			else
 			{
 				return html.BoostrapModal(BootstrapExtensions.BootstrapModalSize.Default,
-					title.GetValueOrDefault(DefaultAddNoteModalTitle), body.ToString(),
+                    html.Liquid(title.GetValueOrDefault(DefaultAddNoteModalTitle)), body.ToString(),
 					string.Join(" ", new[] { "modal-addnote", cssClass }).TrimEnd(' '), null, false,
-					dismissButtonSrText.GetValueOrDefault(DefaultModalDismissButtonSrText), false, false, false,
-					primaryButtonText.GetValueOrDefault(DefaultAddNoteModalPrimaryButtonText),
-					cancelButtonText.GetValueOrDefault(DefaultAddNoteModalCancelButtonText), titleCssClass, primaryButtonCssClass,
+                    html.Liquid(dismissButtonSrText.GetValueOrDefault(DefaultModalDismissButtonSrText)), false, false, false,
+                    html.Liquid(primaryButtonText.GetValueOrDefault(DefaultAddNoteModalPrimaryButtonText)),
+                    html.Liquid(cancelButtonText.GetValueOrDefault(DefaultAddNoteModalCancelButtonText)), titleCssClass, primaryButtonCssClass,
 					closeButtonCssClass, htmlAttributes);
 
 			}
@@ -682,11 +687,11 @@ namespace Adxstudio.Xrm.Web.Mvc.Html
 			}
 
 			return html.BoostrapModal(BootstrapExtensions.BootstrapModalSize.Default,
-				title.GetValueOrDefault(DefaultEditNoteModalTitle), body.ToString(),
+                html.Liquid(title.GetValueOrDefault(DefaultEditNoteModalTitle)), body.ToString(),
 				string.Join(" ", new[] { "modal-editnote", cssClass }).TrimEnd(' '), null, false,
-				dismissButtonSrText.GetValueOrDefault(DefaultModalDismissButtonSrText), false, false, false,
-				primaryButtonText.GetValueOrDefault(DefaultEditNoteModalPrimaryButtonText),
-				cancelButtonText.GetValueOrDefault(DefaultEditNoteModalCancelButtonText), titleCssClass, primaryButtonCssClass,
+                html.Liquid(dismissButtonSrText.GetValueOrDefault(DefaultModalDismissButtonSrText)), false, false, false,
+                html.Liquid(primaryButtonText.GetValueOrDefault(DefaultEditNoteModalPrimaryButtonText)),
+                html.Liquid(cancelButtonText.GetValueOrDefault(DefaultEditNoteModalCancelButtonText)), titleCssClass, primaryButtonCssClass,
 				closeButtonCssClass, htmlAttributes);
 		}
 

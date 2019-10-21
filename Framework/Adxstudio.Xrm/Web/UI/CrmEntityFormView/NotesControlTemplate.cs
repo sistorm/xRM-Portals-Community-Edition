@@ -171,8 +171,12 @@ namespace Adxstudio.Xrm.Web.UI.CrmEntityFormView
 		{
 			var portalContext = PortalCrmConfigurationManager.CreatePortalContext(Metadata.FormView.ContextName);
 			var target = new EntityReference(Metadata.TargetEntityName, entityId);
-			var html = new HtmlHelper(new ViewContext(), new ViewPage());
-			var settings = IsTimeline ? Metadata.TimelineSettings : Metadata.NotesSettings;
+			//var html = new HtmlHelper(new ViewContext(), new ViewPage());
+
+            var html = Mvc.Html.EntityExtensions.GetHtmlHelper(Metadata.FormView.ContextName, Metadata.FormView.Page.Request.RequestContext, Metadata.FormView.Page.Response);
+
+
+            var settings = IsTimeline ? Metadata.TimelineSettings : Metadata.NotesSettings;
 			var createEnabled = false;
 			var editEnabled = false;
 			var deleteEnabled = false;

@@ -18,6 +18,7 @@ using Adxstudio.Xrm.Text;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Metadata;
+using Adxstudio.Xrm.Services;
 
 namespace Adxstudio.Xrm.Web.UI.WebForms
 {
@@ -1303,7 +1304,27 @@ namespace Adxstudio.Xrm.Web.UI.WebForms
 
 			if (attributeTypeCode == null)
 			{
-				throw new InvalidOperationException(string.Format("Unable to recognize the attribute {0} specified in the expression.", attributeName));
+
+                var relationshipSplitted = attributeName.Split('.');
+                if (relationshipSplitted.Length != 2)
+                    throw new InvalidOperationException(string.Format("Unable to recognize the attribute {0} specified in the expression.", attributeName));
+                else
+                {
+                    var relationshipName = relationshipSplitted[0];
+                    var relationshipAttribute = relationshipSplitted[1];
+
+                    var entity = ServiceContext.RetrieveRelatedEntity(EvaluateEntity, relationshipName);
+
+                    if (entity == null)
+                    {
+                        throw new ApplicationException(string.Format("Error retrieving the entity for relationship {0}.", relationshipAttribute));
+                    }
+
+                    EntityExpressionEvaluator eval = new EntityExpressionEvaluator(ServiceContext, entity);
+
+                    return eval.Evaluate(new LeftLiteralExpression(relationshipAttribute), new RightLiteralExpression(expressionValue), compare, convert);
+
+                }
 			}
 
 			var attributeValue = EvaluateEntity.Attributes.ContainsKey(attributeName) ? EvaluateEntity.Attributes[attributeName] : null;

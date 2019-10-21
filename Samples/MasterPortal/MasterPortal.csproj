@@ -1849,6 +1849,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App_Data\settings.xml.laval" />
     <Content Include="Areas\Account\Views\Login\Registration.aspx" />
     <Content Include="Areas\KnowledgeManagement\js\article.js" />
     <Content Include="Areas\Portal\Views\Layout\LiquidSubstitution.ascx" />
@@ -3209,6 +3210,7 @@
     <Content Include="Areas\Category\Views\web.config" />
     <Content Include="Areas\KnowledgeManagement\Views\Shared\Article.master" />
     <Content Include="Areas\Setup\Views\Setup\Provisioning.cshtml" />
+    <Content Include="App_Data\settings.xml" />
     <None Include="AzureStartup\Startup.ps1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -3408,7 +3410,6 @@
     <Content Include="Areas\KnowledgeBase\Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Areas\Account\Views\AuthToken\" />
     <Folder Include="Areas\Category\Views\Shared\" />
     <Folder Include="Areas\EntityList\Models\" />

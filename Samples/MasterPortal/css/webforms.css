@@ -517,6 +517,7 @@ ol.progress.bottom li {
 ol.progress li.incomplete {
 	background: transparent;
 	border: none;
+	margin: 1px;
 }
 
 ol.progress.top li:first-child,

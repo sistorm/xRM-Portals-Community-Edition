@@ -757,8 +757,11 @@ namespace Microsoft.Xrm.Client
 					entity.RelatedEntities.Remove(relationship);
 				}
 
-				// handle entity already being attached before calling entity.GetRelatedEntity
-				if (context.GetAttachedEntities().FirstOrDefault(e => e.Id == entity.Id) is Entity attached)
+                // handle entity already being attached before calling entity.GetRelatedEntity
+
+                var attached = context.GetAttachedEntities().FirstOrDefault(e => e.Id == entity.Id);
+
+                if (attached is Entity)
 				{
 					entity = attached;
 				}

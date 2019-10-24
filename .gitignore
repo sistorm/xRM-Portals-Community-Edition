@@ -301,3 +301,4 @@ __pycache__/
 # xRM Portals Community Edition files
 # temporary files are generated at runtime in the App_Data folder
 /Samples/MasterPortal/App_Data/
+/Deployment Packages/MicrosoftDynamics365PortalsSolutions.exe

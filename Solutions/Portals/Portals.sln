@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterPortal", "..\..\Samples\MasterPortal\MasterPortal.csproj", "{530E8ABE-6436-44BB-9A8D-EED6542C83B9}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -115,5 +115,8 @@ Global
 		{2CAE24B8-C584-43F6-B299-F93638446C6F} = {8F1B88F6-3F00-44DE-9E5A-17FADC6E526A}
 		{9293D3F9-A840-4D3C-98D9-AA0C7343DF6F} = {8F1B88F6-3F00-44DE-9E5A-17FADC6E526A}
 		{444776B5-4638-4800-9466-0E6F19EA9B93} = {8F1B88F6-3F00-44DE-9E5A-17FADC6E526A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {544618AF-AB47-4171-A726-1112896E326F}
 	EndGlobalSection
 EndGlobal

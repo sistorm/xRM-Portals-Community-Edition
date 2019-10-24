@@ -3317,6 +3317,8 @@
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\legio365 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\Legio365master - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\legio365master.pubxml" />
     <None Include="Properties\PublishProfiles\LocalHost IIS.pubxml" />
     <None Include="Properties\PublishProfiles\MasterPortal-Debug.pubxml" />

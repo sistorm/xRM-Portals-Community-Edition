@@ -110,7 +110,7 @@ namespace Site.Pages
 				marketMail.Checked = !contact.GetAttributeValue<bool>("donotpostalmail");
 			}
 
-			PopulateMarketingLists();
+			//PopulateMarketingLists();
 		}
 
 		protected void SubmitButton_Click(object sender, EventArgs e)
